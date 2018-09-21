@@ -10,7 +10,8 @@ int Fun4All_G4_Prototype4(int nEvents = 1)
   gSystem->Load("libg4calo");
   gSystem->Load("libcalo_reco");
 
-  bool cemc_on = true;
+  // bool cemc_on = true;
+  bool cemc_on = false;
   bool cemc_cell = cemc_on && true;
   bool cemc_twr = cemc_cell && true;
   bool cemc_digi = cemc_twr && true;
