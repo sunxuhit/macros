@@ -1,4 +1,4 @@
-int Fun4All_G4_Prototype4(int nEvents = 1)
+int Fun4All_G4_Prototype4(int nEvents = 1000, string runID = "24")
 {
 
   gSystem->Load("libfun4all");
@@ -18,20 +18,26 @@ int Fun4All_G4_Prototype4(int nEvents = 1)
   bool cemc_twrcal = cemc_digi && true;
   bool ihcal_on = true;
   bool ihcal_al = false;
-  bool ihcal_cell = ihcal_on && false;
-  bool ihcal_twr = ihcal_cell && false;
-  bool ihcal_digi = ihcal_twr && false;
-  bool ihcal_twrcal = ihcal_digi && false;
+  bool ihcal_cell = ihcal_on && true; // false
+  bool ihcal_twr = ihcal_cell && true; // false
+  bool ihcal_digi = ihcal_twr && true; // false
+  bool ihcal_twrcal = ihcal_digi && true; // false
   bool ohcal_on = true;
-  bool ohcal_cell = ohcal_on && false;
-  bool ohcal_twr = ohcal_cell && false;
-  bool ohcal_digi = ohcal_twr && false;
-  bool ohcal_twrcal =  ohcal_digi && false;
+  bool ohcal_cell = ohcal_on && true; // false
+  bool ohcal_twr = ohcal_cell && true; // false
+  bool ohcal_digi = ohcal_twr && true; // false
+  bool ohcal_twrcal =  ohcal_digi && true; //false
   bool cryo_on = true;
   bool bh_on = false; // the surrounding boxes need some further thinking
   bool dstreader = true;
   bool hit_ntuple = false;
-  bool dstoutput = false;
+  bool dstoutput = true;
+
+  // swtich for different simulation mode
+  bool do_beamtest = false;
+  bool do_cosmic = !do_beamtest;
+  string outputfile = "./data/G4Prototype4New";
+  // cout << "do_beamtest = " << do_beamtest << ", do_cosmic = " << do_cosmic << endl;
 
   ///////////////////////////////////////////
   // Make the Server
@@ -47,21 +53,81 @@ int Fun4All_G4_Prototype4(int nEvents = 1)
   double theta = 90-46.4;
   // shift in x with respect to midrapidity setup
   double add_place_x = 183.-173.93+2.54/2.;
+
   // Test beam generator
-  PHG4SimpleEventGenerator *gen = new PHG4SimpleEventGenerator();
-  gen->add_particles("e-", 1); // mu-,e-,anti_proton,pi-
-  gen->set_vertex_distribution_mean(0.0, 0.0, 0);
-  gen->set_vertex_distribution_width(0.0, .7, .7); // Rough beam profile size @ 16 GeV measured by Abhisek
-  gen->set_vertex_distribution_function(PHG4SimpleEventGenerator::Gaus,
-					PHG4SimpleEventGenerator::Gaus, 
-                                        PHG4SimpleEventGenerator::Gaus); // Gauss beam profile
-  double angle = theta*TMath::Pi()/180.;
-  double eta = -1.*TMath::Log(TMath::Tan(angle/2.));
-  gen->set_eta_range(eta-0.001,eta+0.001); // 1mrad angular divergence
-  gen->set_phi_range(-0.001, 0.001); // 1mrad angular divergence
-  const double momentum = 32;
-  gen->set_p_range(momentum,momentum, momentum*2e-2); // 2% momentum smearing
-  se->registerSubsystem(gen);
+  if(do_beamtest)
+  {
+    outputfile = "./data/Simulation/BeamTest_"+runID;
+    PHG4SimpleEventGenerator *gen = new PHG4SimpleEventGenerator();
+    // gen->add_particles("e-", 1); // mu-,e-,anti_proton,pi-
+    gen->add_particles("pi-", 10); // mu-,e-,anti_proton,pi-
+    gen->set_vertex_distribution_mean(0.0, 0.0, 0);
+    gen->set_vertex_distribution_width(0.0, .7, .7); // Rough beam profile size @ 16 GeV measured by Abhisek
+    gen->set_vertex_distribution_function(PHG4SimpleEventGenerator::Gaus,
+	PHG4SimpleEventGenerator::Gaus, 
+	PHG4SimpleEventGenerator::Gaus); // Gauss beam profile
+    double angle = theta*TMath::Pi()/180.;
+    double eta = -1.*TMath::Log(TMath::Tan(angle/2.));
+    gen->set_eta_range(eta-0.001,eta+0.001); // 1mrad angular divergence
+    gen->set_phi_range(-0.001, 0.001); // 1mrad angular divergence
+    const double momentum = 4;
+    gen->set_p_range(momentum,momentum, momentum*2e-2); // 2% momentum smearing
+    se->registerSubsystem(gen);
+  }
+
+  // Cosmic generator
+  if(do_cosmic)
+  {
+    outputfile = "./data/Simulation/Cosmic_"+runID;
+    PHG4SimpleEventGenerator *gen = new PHG4SimpleEventGenerator();
+    gen->add_particles("mu-", 1); // mu-,e-,anti_proton,pi-
+    // gen->add_particles("pi-", 1); // mu-,e-,anti_proton,pi-
+    double angle = theta*TMath::Pi()/180.;
+    // double vertex_x = 124.0;
+    // double vertex_y = 80.0;
+    // double vertex_z = vertex_x*TMath::Cos(angle) + 40;
+
+    // HCALIN
+    double vertex_x = 124.0+add_place_x;
+    double vertex_y = 80.0;
+    double vertex_z = 168.0;
+
+    //HCALOUT
+    // double vertex_x = 210.0+add_place_x;
+    // double vertex_y = 80.0;
+    // double vertex_z = 188.0;
+
+    gen->set_vertex_distribution_mean(vertex_x,vertex_y,vertex_z);
+    // cout << "vertex_x = " << vertex_x+add_place_x << ", vertex_y = " << vertex_y << ", vertex_z = " << vertex_z << endl;
+    // gen->set_vertex_distribution_width(0.0, .7, .7); // Rough beam profile size @ 16 GeV measured by Abhisek
+    gen->set_vertex_distribution_function(PHG4SimpleEventGenerator::Gaus,
+	PHG4SimpleEventGenerator::Gaus, 
+	PHG4SimpleEventGenerator::Gaus); // Gauss beam profile
+    // double eta = -1.*TMath::Log(TMath::Tan(angle/2.));
+    double eta = 0;
+    gen->set_eta_range(eta-0.001,eta+0.001); // 1mrad angular divergence
+    gen->set_phi_range(-0.5*TMath::Pi(), -0.5*TMath::Pi());
+    const double momentum = 4;
+    gen->set_p_range(momentum,momentum, momentum*2e-2); // 2% momentum smearing
+    se->registerSubsystem(gen);
+
+    /*
+    // horizontal for phi bin
+    gen->add_particles("mu-", 1); 
+    gen->set_vertex_distribution_mean(0.0, 20.0, 0.0);
+    gen->set_vertex_distribution_width(0.0, .7, .7); // Rough beam profile size @ 16 GeV measured by Abhisek
+    gen->set_vertex_distribution_function(PHG4SimpleEventGenerator::Gaus,
+	PHG4SimpleEventGenerator::Gaus, 
+	PHG4SimpleEventGenerator::Gaus); // Gauss beam profile
+    double angle = theta*TMath::Pi()/180.;
+    double eta = -1.*TMath::Log(TMath::Tan(angle/2.));
+    gen->set_eta_range(eta-0.001,eta+0.001); // 1mrad angular divergence
+    gen->set_phi_range(-0.001, 0.001); // 1mrad angular divergence
+    const double momentum = 32;
+    gen->set_p_range(momentum,momentum, momentum*2e-2); // 2% momentum smearing
+    se->registerSubsystem(gen);
+    */
+  }
 
   PHG4ParticleGenerator *pgen = new PHG4ParticleGenerator();
   pgen->set_name("geantino");
@@ -511,7 +577,7 @@ int Fun4All_G4_Prototype4(int nEvents = 1)
   //----------------------
   if (dstreader)
     {
-      PHG4DSTReader* ana = new PHG4DSTReader(string("DSTReader.root"));
+      PHG4DSTReader* ana = new PHG4DSTReader(outputfile+string("_DSTReader.root"));
       ana->set_save_particle(true);
       ana->set_load_all_particle(false);
       ana->set_load_active_particle(false);
@@ -574,7 +640,7 @@ int Fun4All_G4_Prototype4(int nEvents = 1)
 
   if (dstoutput)
     {
-      Fun4AllDstOutputManager *out = new Fun4AllDstOutputManager("DSTOUT","G4Prototype3New.root");
+      Fun4AllDstOutputManager *out = new Fun4AllDstOutputManager("DSTOUT",outputfile+string(".root"));
       se->registerOutputManager(out);
     }
 
@@ -588,7 +654,7 @@ int Fun4All_G4_Prototype4(int nEvents = 1)
 
   se->End();
 
-  QAHistManagerDef::saveQARootFile("G4Prototype2_qa.root");
+  // QAHistManagerDef::saveQARootFile("G4Prototype4_qa.root");
 
 
   //   std::cout << "All done" << std::endl;
