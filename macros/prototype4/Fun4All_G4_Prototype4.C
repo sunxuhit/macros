@@ -1,4 +1,4 @@
-int Fun4All_G4_Prototype4(int nEvents = 1000, string runID = "24")
+int Fun4All_G4_Prototype4(int nEvents = 1000)
 {
 
   gSystem->Load("libfun4all");
@@ -36,6 +36,8 @@ int Fun4All_G4_Prototype4(int nEvents = 1000, string runID = "24")
   // swtich for different simulation mode
   bool do_beamtest = false;
   bool do_cosmic = !do_beamtest;
+  bool do_ihcal = false;
+  bool do_ohcal = !do_ihcal;
   string outputfile = "./data/G4Prototype4New";
   // cout << "do_beamtest = " << do_beamtest << ", do_cosmic = " << do_cosmic << endl;
 
@@ -53,11 +55,13 @@ int Fun4All_G4_Prototype4(int nEvents = 1000, string runID = "24")
   double theta = 90-46.4;
   // shift in x with respect to midrapidity setup
   double add_place_x = 183.-173.93+2.54/2.;
+  int posID = 4;
+  int addID = 3;
 
   // Test beam generator
   if(do_beamtest)
   {
-    outputfile = "./data/Simulation/BeamTest_"+runID;
+    outputfile = "./data/Simulation/BeamTest_"+run;
     PHG4SimpleEventGenerator *gen = new PHG4SimpleEventGenerator();
     // gen->add_particles("e-", 1); // mu-,e-,anti_proton,pi-
     gen->add_particles("pi-", 10); // mu-,e-,anti_proton,pi-
@@ -78,24 +82,44 @@ int Fun4All_G4_Prototype4(int nEvents = 1000, string runID = "24")
   // Cosmic generator
   if(do_cosmic)
   {
-    outputfile = "./data/Simulation/Cosmic_"+runID;
     PHG4SimpleEventGenerator *gen = new PHG4SimpleEventGenerator();
     gen->add_particles("mu-", 1); // mu-,e-,anti_proton,pi-
     // gen->add_particles("pi-", 1); // mu-,e-,anti_proton,pi-
-    double angle = theta*TMath::Pi()/180.;
+    double vertex_x = 0.0;
+    double vertex_y = 0.0;
+    double vertex_z = 0.0;
+    // double angle = theta*TMath::Pi()/180.;
     // double vertex_x = 124.0;
     // double vertex_y = 80.0;
     // double vertex_z = vertex_x*TMath::Cos(angle) + 40;
 
     // HCALIN
-    double vertex_x = 124.0+add_place_x;
-    double vertex_y = 80.0;
-    double vertex_z = 168.0;
+    if(do_ihcal)
+    {
+      double pos_x[5] = {120.0,122.0,124.0,126.0,128.0};
+      double pos_z[5] = {126.9,128.4,129.8,131.3,132.7};
+      double add_place_z[4] = {0.0,-15.0,15.0,35.0};
+      vertex_x = pos_x[posID]+add_place_x;
+      vertex_y = 80.0;
+      vertex_z = pos_z[posID]+add_place_z[addID];
+      std::ostringstream run;
+      run << posID << addID;
+      outputfile = "./data/Simulation/Cosmic_HCALIN_"+run.str();
+    }
 
     //HCALOUT
-    // double vertex_x = 210.0+add_place_x;
-    // double vertex_y = 80.0;
-    // double vertex_z = 188.0;
+    if(do_ohcal)
+    {
+      double pos_x[6] = {190.0,200.0,210.0,220.0,230.0,240.0};
+      double pos_z[6] = {177.6,184.9,192.1,199.4,206.6,213.8};
+      double add_place_z[4] = {0.0,20.0,51.0,80.0};
+      vertex_x = pos_x[posID]+add_place_x;
+      vertex_y = 80.0;
+      vertex_z = pos_z[posID]+add_place_z[addID];
+      std::ostringstream run;
+      run << posID << addID;
+      outputfile = "./data/Simulation/Cosmic_HCALOUT_"+run.str();
+    }
 
     gen->set_vertex_distribution_mean(vertex_x,vertex_y,vertex_z);
     // cout << "vertex_x = " << vertex_x+add_place_x << ", vertex_y = " << vertex_y << ", vertex_z = " << vertex_z << endl;
@@ -107,7 +131,7 @@ int Fun4All_G4_Prototype4(int nEvents = 1000, string runID = "24")
     double eta = 0;
     gen->set_eta_range(eta-0.001,eta+0.001); // 1mrad angular divergence
     gen->set_phi_range(-0.5*TMath::Pi(), -0.5*TMath::Pi());
-    const double momentum = 4;
+    const double momentum = 32;
     gen->set_p_range(momentum,momentum, momentum*2e-2); // 2% momentum smearing
     se->registerSubsystem(gen);
 
