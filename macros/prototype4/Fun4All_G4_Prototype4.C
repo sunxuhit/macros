@@ -1,6 +1,6 @@
-int Fun4All_G4_Prototype4(int nEvents = 1000)
+int Fun4All_G4_Prototype4(int nEvents = 1000, int posID = 0, int addID = 0)
+// int Fun4All_G4_Prototype4(int nEvents = 1000, int runID = 0)
 {
-
   gSystem->Load("libfun4all");
   gSystem->Load("libg4detectors");
   gSystem->Load("libg4testbench");
@@ -36,8 +36,9 @@ int Fun4All_G4_Prototype4(int nEvents = 1000)
   // swtich for different simulation mode
   bool do_beamtest = false;
   bool do_cosmic = !do_beamtest;
-  bool do_ihcal = false;
+  bool do_ihcal = true;
   bool do_ohcal = !do_ihcal;
+  bool do_ihcal_scint = false;
   string outputfile = "./data/G4Prototype4New";
   // cout << "do_beamtest = " << do_beamtest << ", do_cosmic = " << do_cosmic << endl;
 
@@ -55,16 +56,16 @@ int Fun4All_G4_Prototype4(int nEvents = 1000)
   double theta = 90-46.4;
   // shift in x with respect to midrapidity setup
   double add_place_x = 183.-173.93+2.54/2.;
-  int posID = 4;
-  int addID = 3;
 
   // Test beam generator
   if(do_beamtest)
   {
-    outputfile = "./data/Simulation/BeamTest_"+run;
+    std::ostringstream run;
+    run << runID;
+    outputfile = "./data/Simulation/BeamTest_SF_"+run.str();
     PHG4SimpleEventGenerator *gen = new PHG4SimpleEventGenerator();
-    // gen->add_particles("e-", 1); // mu-,e-,anti_proton,pi-
-    gen->add_particles("pi-", 10); // mu-,e-,anti_proton,pi-
+    gen->add_particles("mu-", 1); // mu-,e-,anti_proton,pi-
+    // gen->add_particles("pi-", 10); // mu-,e-,anti_proton,pi-
     gen->set_vertex_distribution_mean(0.0, 0.0, 0);
     gen->set_vertex_distribution_width(0.0, .7, .7); // Rough beam profile size @ 16 GeV measured by Abhisek
     gen->set_vertex_distribution_function(PHG4SimpleEventGenerator::Gaus,
@@ -131,7 +132,7 @@ int Fun4All_G4_Prototype4(int nEvents = 1000)
     double eta = 0;
     gen->set_eta_range(eta-0.001,eta+0.001); // 1mrad angular divergence
     gen->set_phi_range(-0.5*TMath::Pi(), -0.5*TMath::Pi());
-    const double momentum = 32;
+    const double momentum = 4;
     gen->set_p_range(momentum,momentum, momentum*2e-2); // 2% momentum smearing
     se->registerSubsystem(gen);
 
@@ -222,6 +223,7 @@ int Fun4All_G4_Prototype4(int nEvents = 1000)
       }
       else
       {
+	if (do_ihcal_scint) innerhcal->set_string_param("material","G4_POLYSTYRENE");
 	innerhcal->SetActive();
       }
       innerhcal->SetAbsorberActive();
