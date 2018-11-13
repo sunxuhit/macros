@@ -39,7 +39,7 @@ int Fun4All_G4_Prototype4(int nEvents = 1000, int posID = 0, int addID = 0)
   bool do_ihcal = true;
   bool do_ohcal = !do_ihcal;
   bool do_ihcal_scint = false;
-  string outputfile = "./data/G4Prototype4New";
+  string outputfile = "/sphenix/user/xusun/software/data/cosmic/simulation/G4Prototype4New";
   // cout << "do_beamtest = " << do_beamtest << ", do_cosmic = " << do_cosmic << endl;
 
   ///////////////////////////////////////////
@@ -62,7 +62,7 @@ int Fun4All_G4_Prototype4(int nEvents = 1000, int posID = 0, int addID = 0)
   {
     std::ostringstream run;
     run << runID;
-    outputfile = "./data/Simulation/BeamTest_SF_"+run.str();
+    outputfile = "/sphenix/user/xusun/software/data/beam/simulation/BeamTest_SF_"+run.str();
     PHG4SimpleEventGenerator *gen = new PHG4SimpleEventGenerator();
     gen->add_particles("mu-", 1); // mu-,e-,anti_proton,pi-
     // gen->add_particles("pi-", 10); // mu-,e-,anti_proton,pi-
@@ -105,7 +105,7 @@ int Fun4All_G4_Prototype4(int nEvents = 1000, int posID = 0, int addID = 0)
       vertex_z = pos_z[posID]+add_place_z[addID];
       std::ostringstream run;
       run << posID << addID;
-      outputfile = "./data/Simulation/Cosmic_HCALIN_"+run.str();
+      outputfile = "/sphenix/user/xusun/software/data/cosmic/simulation/Cosmic_HCALIN_"+run.str();
     }
 
     //HCALOUT
@@ -119,7 +119,7 @@ int Fun4All_G4_Prototype4(int nEvents = 1000, int posID = 0, int addID = 0)
       vertex_z = pos_z[posID]+add_place_z[addID];
       std::ostringstream run;
       run << posID << addID;
-      outputfile = "./data/Simulation/Cosmic_HCALOUT_"+run.str();
+      outputfile = "/sphenix/user/xusun/software/data/cosmic/simulation/Cosmic_HCALOUT_"+run.str();
     }
 
     gen->set_vertex_distribution_mean(vertex_x,vertex_y,vertex_z);
