@@ -1,5 +1,5 @@
-int Fun4All_G4_Prototype4(int nEvents = 1000, int posID = 0, int addID = 0)
-// int Fun4All_G4_Prototype4(int nEvents = 1000, int runID = 0)
+// int Fun4All_G4_Prototype4(int nEvents = 1000, int posID = 0, int colID = 0)
+int Fun4All_G4_Prototype4(int nEvents = 1000, int runID = 1666)
 {
   gSystem->Load("libfun4all");
   gSystem->Load("libg4detectors");
@@ -34,9 +34,9 @@ int Fun4All_G4_Prototype4(int nEvents = 1000, int posID = 0, int addID = 0)
   bool dstoutput = true;
 
   // swtich for different simulation mode
-  bool do_beamtest = false;
+  bool do_beamtest = true;
   bool do_cosmic = !do_beamtest;
-  bool do_ihcal = true;
+  bool do_ihcal = false;
   bool do_ohcal = !do_ihcal;
   bool do_ihcal_scint = false;
   string outputfile = "/sphenix/user/xusun/software/data/cosmic/simulation/G4Prototype4New";
@@ -60,12 +60,9 @@ int Fun4All_G4_Prototype4(int nEvents = 1000, int posID = 0, int addID = 0)
   // Test beam generator
   if(do_beamtest)
   {
-    std::ostringstream run;
-    run << runID;
-    outputfile = "/sphenix/user/xusun/software/data/beam/simulation/BeamTest_SF_"+run.str();
     PHG4SimpleEventGenerator *gen = new PHG4SimpleEventGenerator();
-    gen->add_particles("mu-", 1); // mu-,e-,anti_proton,pi-
-    // gen->add_particles("pi-", 10); // mu-,e-,anti_proton,pi-
+    // gen->add_particles("mu-", 1); // mu-,e-,anti_proton,pi-
+    gen->add_particles("pi-", 1); // mu-,e-,anti_proton,pi-
     gen->set_vertex_distribution_mean(0.0, 0.0, 0);
     gen->set_vertex_distribution_width(0.0, .7, .7); // Rough beam profile size @ 16 GeV measured by Abhisek
     gen->set_vertex_distribution_function(PHG4SimpleEventGenerator::Gaus,
@@ -75,9 +72,13 @@ int Fun4All_G4_Prototype4(int nEvents = 1000, int posID = 0, int addID = 0)
     double eta = -1.*TMath::Log(TMath::Tan(angle/2.));
     gen->set_eta_range(eta-0.001,eta+0.001); // 1mrad angular divergence
     gen->set_phi_range(-0.001, 0.001); // 1mrad angular divergence
-    const double momentum = 4;
+    const double momentum = 24;
     gen->set_p_range(momentum,momentum, momentum*2e-2); // 2% momentum smearing
     se->registerSubsystem(gen);
+    std::ostringstream run;
+    run << momentum << "GeV_" << runID;
+    // outputfile = "/sphenix/user/xusun/software/data/beam/SampleFrac/BeamTest_SF_"+run.str();
+    outputfile = "/sphenix/user/xusun/software/data/beam/simulation/BeamTest_"+run.str();
   }
 
   // Cosmic generator
@@ -99,12 +100,13 @@ int Fun4All_G4_Prototype4(int nEvents = 1000, int posID = 0, int addID = 0)
     {
       double pos_x[5] = {120.0,122.0,124.0,126.0,128.0};
       double pos_z[5] = {126.9,128.4,129.8,131.3,132.7};
-      double add_place_z[4] = {0.0,-15.0,15.0,35.0};
+      // double add_place_z[4] = {-15.0,0.0,15.0,35.0};
+      double add_place_z[4] = {35.0,15.0,0.0,-15.0};
       vertex_x = pos_x[posID]+add_place_x;
       vertex_y = 80.0;
-      vertex_z = pos_z[posID]+add_place_z[addID];
+      vertex_z = pos_z[posID]+add_place_z[colID];
       std::ostringstream run;
-      run << posID << addID;
+      run << "col_" << colID << "_pos_" << posID ;
       outputfile = "/sphenix/user/xusun/software/data/cosmic/simulation/Cosmic_HCALIN_"+run.str();
     }
 
@@ -113,12 +115,13 @@ int Fun4All_G4_Prototype4(int nEvents = 1000, int posID = 0, int addID = 0)
     {
       double pos_x[6] = {190.0,200.0,210.0,220.0,230.0,240.0};
       double pos_z[6] = {177.6,184.9,192.1,199.4,206.6,213.8};
-      double add_place_z[4] = {0.0,20.0,51.0,80.0};
+      // double add_place_z[4] = {0.0,20.0,51.0,80.0};
+      double add_place_z[4] = {80.0,51.0,20.0,0.0};
       vertex_x = pos_x[posID]+add_place_x;
       vertex_y = 80.0;
-      vertex_z = pos_z[posID]+add_place_z[addID];
+      vertex_z = pos_z[posID]+add_place_z[colID];
       std::ostringstream run;
-      run << posID << addID;
+      run << "col_" << colID << "_pos_" << posID ;
       outputfile = "/sphenix/user/xusun/software/data/cosmic/simulation/Cosmic_HCALOUT_"+run.str();
     }
 
@@ -138,19 +141,25 @@ int Fun4All_G4_Prototype4(int nEvents = 1000, int posID = 0, int addID = 0)
 
     /*
     // horizontal for phi bin
+    PHG4SimpleEventGenerator *gen = new PHG4SimpleEventGenerator();
     gen->add_particles("mu-", 1); 
-    gen->set_vertex_distribution_mean(0.0, 20.0, 0.0);
+    gen->set_vertex_distribution_mean(0.0, -25.0, 0.0);
     gen->set_vertex_distribution_width(0.0, .7, .7); // Rough beam profile size @ 16 GeV measured by Abhisek
     gen->set_vertex_distribution_function(PHG4SimpleEventGenerator::Gaus,
 	PHG4SimpleEventGenerator::Gaus, 
 	PHG4SimpleEventGenerator::Gaus); // Gauss beam profile
     double angle = theta*TMath::Pi()/180.;
-    double eta = -1.*TMath::Log(TMath::Tan(angle/2.));
+    // double eta = -1.*TMath::Log(TMath::Tan(angle/2.));
+    double eta = 0.75;
     gen->set_eta_range(eta-0.001,eta+0.001); // 1mrad angular divergence
     gen->set_phi_range(-0.001, 0.001); // 1mrad angular divergence
     const double momentum = 32;
     gen->set_p_range(momentum,momentum, momentum*2e-2); // 2% momentum smearing
     se->registerSubsystem(gen);
+
+    std::ostringstream run;
+    run << momentum << "GeV_" << runID;
+    outputfile = "/sphenix/user/xusun/software/data/cosmic/simulation/Cosmic_Hori_"+run.str();
     */
   }
 
