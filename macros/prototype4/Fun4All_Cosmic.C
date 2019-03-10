@@ -4,22 +4,23 @@ using namespace std;
 
 void Fun4All_Cosmic(int nEvents = 20000,
                       // const char *input_file = "/sphenix/data/data02/sphenix/caladc/hcallab/ihcal_2018-01-12__17_09_38.prdf",
-                      // const char *output_file = "/sphenix/user/xusun/software/data/cosmic/beamtest/Cosmic_HCALIN_col_0_0.root")
+                      // const char *output_file = "/sphenix/user/xusun/TestBeam/Production/Cosmic_HCALIN_col_0_0.root")
                       // const char *input_file = "/sphenix/data/data02/sphenix/caladc/hcallab/ihcal_2018-01-15__08_00_58.prdf",
-                      // const char *output_file = "/sphenix/user/xusun/software/data/cosmic/beamtest/Cosmic_HCALIN_col_0_1.root")
+                      // const char *output_file = "/sphenix/user/xusun/TestBeam/Production/Cosmic_HCALIN_col_0_1.root")
                       // const char *input_file = "/sphenix/data/data02/sphenix/t1044/rcdaq-00000074-0000.prdf",
-                      // const char *output_file = "/sphenix/user/xusun/software/data/cosmic/beamtest/Cosmic_HCALIN_col_1.root")
+                      // const char *output_file = "/sphenix/user/xusun/TestBeam/Production/Cosmic_HCALIN_col_1.root")
                       // const char *input_file = "/sphenix/data/data02/sphenix/t1044/rcdaq-00000088-0000.prdf",
-                      // const char *output_file = "/sphenix/user/xusun/software/data/cosmic/beamtest/Cosmic_HCALIN_col_2_0.root")
+                      // const char *output_file = "/sphenix/user/xusun/TestBeam/Production/Cosmic_HCALIN_col_2_0.root")
                       // const char *input_file = "/sphenix/data/data02/sphenix/t1044/rcdaq-00000089-0000.prdf",
-                      // const char *output_file = "/sphenix/user/xusun/software/data/cosmic/beamtest/Cosmic_HCALIN_col_2_1.root")
+                      // const char *output_file = "/sphenix/user/xusun/TestBeam/Production/Cosmic_HCALIN_col_2_1.root")
                       // const char *input_file = "/sphenix/data/data02/sphenix/t1044/rcdaq-00000124-0000.prdf",
-                      // const char *output_file = "/sphenix/user/xusun/software/data/cosmic/beamtest/Cosmic_HCALIN_col_3.root")
+                      // const char *output_file = "/sphenix/user/xusun/TestBeam/Production/Cosmic_HCALIN_col_3.root")
                       const char *input_file = "/sphenix/data/data02/sphenix/t1044/rcdaq-00000162-0000.prdf",
-                      const char *output_file = "/sphenix/user/xusun/software/data/cosmic/beamtest/Cosmic_HCALOUT_col_0.root")
+                      const char *output_file = "/sphenix/user/xusun/TestBeam/Production/Cosmic_HCALOUT_col_0.root")
 {
   gSystem->Load("libfun4all");
-  gSystem->Load("libPrototype4.so");
+  // gSystem->Load("libPrototype4.so");
+  gSystem->Load("/direct/phenix+u/xusun/WorkSpace/sPHENIX/install/lib/libPrototype4.so");
 
   const bool do_cemc = true;
   const bool do_hcal = true;
